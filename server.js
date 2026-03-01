@@ -51,6 +51,10 @@ app.get("/app", (req, res) => {
   res.type('html').send(fs.readFileSync(PUBLIC_DIR + "/app.html"));
 });
 
+app.get("/live-pixel", (req, res) => {
+  res.type('html').send(fs.readFileSync(PUBLIC_DIR + "/live-pixel.html"));
+});
+
 // API routes first
 app.get("/api/agents", (req, res) => {
   const agents = readJSON("agents.json", []);
