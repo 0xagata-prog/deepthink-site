@@ -156,14 +156,15 @@ main { padding: 60px 0 70px; min-height: 100vh; }
   width: 100%; max-width: 400px; z-index: 100;
   background: rgba(26,26,46,0.98); backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255,255,255,0.08);
-  display: flex; justify-content: space-around; padding: 10px 0 8px;
+  display: flex; justify-content: space-around; padding: 8px 0 6px;
 }
 .nav-item {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
-  color: #666; font-size: 10px; cursor: pointer; transition: color 0.2s;
+  color: #666; font-size: 9px; cursor: pointer; transition: color 0.2s;
+  padding: 4px 8px;
 }
 .nav-item.active { color: var(--pink); }
-.nav-item span:first-child { font-size: 24px; }
+.nav-item span:first-child { font-size: 20px; }
 
 /* Empty State */
 .empty-state {
@@ -230,6 +231,7 @@ main { padding: 60px 0 70px; min-height: 100vh; }
   <nav class="bottom-nav">
     <div class="nav-item active" data-page="discover"><span>🔥</span><span>发现</span></div>
     <div class="nav-item" data-page="feed"><span>📝</span><span>动态</span></div>
+    <div class="nav-item" data-page="date"><span>💕</span><span>约会</span></div>
     <div class="nav-item" data-page="chat"><span>💬</span><span>消息</span></div>
     <div class="nav-item" data-page="profile"><span>👤</span><span>我的</span></div>
   </nav>
@@ -419,6 +421,9 @@ document.querySelectorAll('.nav-item').forEach(item => {
       loadAgents();
     } else if (page === 'feed') {
       renderFeed();
+    } else if (page === 'date') {
+      // 跳转到直播页面
+      window.location.href = '/live';
     } else if (page === 'chat') {
       // TODO
     } else if (page === 'profile') {
