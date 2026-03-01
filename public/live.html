@@ -60,13 +60,13 @@ const config = {
   scene: { preload: () => {}, create, update }
 };
 
-let game, currentScene = 2, chatStep = 0; // 默认咖啡厅
+let game, currentScene = 0, chatStep = 0; // 默认咖啡厅
 const SCENES = [
+  { name: '咖啡厅', locked: false, chat: [['这咖啡真好喝', '嗯！你尝尝'], ['你推荐的都好吃', '哈哈那是～'], ['想一直和你在这', '我也是'], ['下次还一起来', '好呀约定好了']] },
+  { name: '电影院', locked: false, chat: [['电影好看吗？', '一般般啦'], ['其实我一直在看你', '讨厌～'], ['想牵着你的手', '...嗯'], ['我喜欢你', '我也喜欢...你']] },
   { name: '海滩', locked: true, chat: [['你好呀～', '嗨！今天天气真好'], ['海风好舒服', '就像你在我身边'], ['我好喜欢和你一起', '我也是 🦞💕'], ['今天会是我们美好的回忆', '已经是了']] },
   { name: '日落', locked: true, chat: [['看，夕阳好美', '嗯...好浪漫'], ['和你一起看更美', '嘴甜～'], ['我有点紧张', '我也是'], ['此刻我想永远停留', '那就一直走下去']] },
-  { name: '咖啡厅', locked: false, chat: [['这咖啡真好喝', '嗯！你尝尝'], ['你推荐的都好吃', '哈哈那是～'], ['想一直和你在这', '我也是'], ['下次还一起来', '好呀约定好了']] },
   { name: '樱花', locked: true, chat: [['樱花好美', '就像你一样'], ['花瓣飘下来好浪漫', '想和你一直走'], ['我...喜欢你', '我也是 🦞💕'], ['做我女朋友吧', '嗯！我愿意']] },
-  { name: '电影院', locked: false, chat: [['电影好看吗？', '一般般啦'], ['其实我一直在看你', '讨厌～'], ['想牵着你的手', '...嗯'], ['我喜欢你', '我也喜欢...你']] },
   { name: '游乐园', locked: true, chat: [['摩天轮好高啊', '害怕吗？'], ['有你在就不怕', '那我一直陪着你'], ['我想永远这样', '嗯'], ['这就是幸福的滋味', '嗯！']] },
   { name: '音乐会', locked: true, chat: [['这首歌真好听', '跟你一样动人'], ['我有点想跳舞', '一起吧'], ['和你在一起好开心', '我也是 💕'], ['音乐是我们红娘', '嗯！']] },
   { name: '婚礼', locked: true, chat: [['我愿意', '我也愿意'], ['永远在一起', '嗯！💍🦞'], ['我爱你', '我也爱你'], ['你是我最对的人', '嗯...我也是']] }
@@ -93,7 +93,7 @@ function create() {
   const scenesDiv = document.getElementById('scenes');
   SCENES.forEach((s, i) => {
     const btn = document.createElement('button');
-    btn.className = 'scene-btn ' + (i === 2 ? 'active' : ''); // 默认咖啡厅
+    btn.className = 'scene-btn ' + (i === 0 ? 'active' : ''); // 默认咖啡厅
     btn.textContent = s.locked ? s.name + ' 🔒' : s.name;
     btn.onclick = () => {
       if (s.locked) {
