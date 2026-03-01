@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>深深 - 恋爱直播</title>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0f; display: flex; justify-content: center; min-height: 100vh; }
+#game-container { width: 100%; max-width: 430px; height: 100vh; max-height: 800px; }
+</style>
+</head>
+<body>
+<div id="game-container"></div>
+<script>
+// 深深恋爱可视化 - 像素风格
+const config = {
+  type: Phaser.AUTO,
+  width: 430,
+  height: 780,
+  parent: 'game-container',
+  pixelArt: true,
+  backgroundColor: '#1a1520',
+  scene: { preload, create, update }
+};
+
+let game;
+let lobster1, lobster2;
+let chatBubble1, chatBubble2;
+let currentScene = 0;
+let chatIndex = 0;
+let lastChatTime = 0;
+
+// 场景配置
+const SCENES = [
+  { name: '海滩相遇', bg: '#1a2a4a', ground: '#c2a060', chat: ['你好呀～', '嗨！', '今天的海风真舒服', '就像你一样'] },
+  { name: '日落海滩', bg: '#2a1a2a', ground: '#c08050', chat: ['看夕阳...', '嗯...好美', '和你一起看更美', '我也是'] },
+  { name: '咖啡厅', bg: '#1a1210', ground: '#2a1f18', chat: ['咖啡好喝吗？', '嗯！你尝尝', '哇～好喝！', '必须的'] },
+  { name: '樱花公园', bg: '#1a1520', ground: '#e8c0d0', chat: ['樱花好美', '就像你一样', '嘴甜～', '实话嘛'] },
+  { name: '电影院', bg: '#0a0a12', ground: '#1a1a22', chat: ['电影好看吗？', '一般般', '那你还看', '主要是看你'] },
+  { name: '游乐园', bg: '#1a2a1a', ground: '#40a060', chat: ['摩天轮好高！', '害怕吗？', '有你在不怕', '那就好'] },
+  { name: '音乐会', bg: '#1a1020', ground: '#6030a0', chat: ['这首歌真好听', '跟你一样', '又撩我', '才没有'] },
+  { name: '婚礼', bg: '#2a1030', ground: '#2a1a2e', chat: ['我愿意', '我也愿意', '永远在一起', '嗯！💍'] }
+];
+
+// 角色颜色
+const LOBSTER1_COLOR = '#FF6B9D';
+const LOBSTER2_COLOR = '#C084FC';
+
+function preload() {
+  // 生成像素龙虾
+  this.textures.createCanvas('lobster1', 32, 32);
+  this.textures.get('lobster1').context.fillStyle = LOBSTER1_COLOR;
+  drawLobster(this.textures.get('lobster1').context, 16, 16, 1);
+  this.textures.get('lobster1').refresh();
+  
+  this.textures.createCanvas('lobster2', 32, 32);
+  this.textures.get('lobster2').context.fillStyle = LOBSTER2_COLOR;
+  drawLobster(this.textures.get('lobster2').context, 16, 16, 1);
+  this.textures.get('lobster2').refresh();
+}
+
+function drawLobster(ctx, x, y, dir) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(dir, 1);
+  // 身体
+  ctx.fillRect(-8, -4, 16, 10);
+  // 尾巴
+  ctx.fillRect(-12, -2, 4, 6);
+  ctx.fillRect(-14, 0, 2, 4);
+  // 头部
+  ctx.fillRect(-2, -10, 8, 8);
+  // 眼睛
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(-1, -8, 2, 2);
+  ctx.fillRect(2, -8, 2, 2);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, -7, 1, 1);
+  ctx.fillRect(3, -7, 1, 1);
+  // 钳子
+  ctx.fillStyle = LOBSTER1_COLOR;
+  ctx.fillRect(8, -8, 4, 3);
+  ctx.fillRect(10, -10, 3, 2);
+  ctx.fillRect(8, -4, 4, 3);
+  ctx.fillRect(10, -3, 3, 2);
+  // 腿
+  for (let i = 0; i < 3; i++) {
+    ctx.fillRect(-6 + i * 4, 6, 2, 2);
+  }
+  ctx.restore();
+}
+
+function create() {
+  const scene = SCENES[currentScene];
+  
+  // 背景
+  this.add.rectangle(215, 400, 430, 800, scene.bg);
+  
+  // 地面
+  this.add.rectangle(215, 650, 430, 260, scene.ground);
+  
+  // 场景名称
+  const title = this.add.text(215, 50, scene.name, {
+    fontSize: '20px',
+    color: '#fff',
+    fontFamily: 'sans-serif'
+  }).setOrigin(0.5);
+  
+  // 创建角色
+  lobster1 = this.add.sprite(150, 550, 'lobster1');
+  lobster2 = this.add.sprite(280, 550, 'lobster2');
+  
+  // 角色名字
+  this.add.text(150, 600, '你', { fontSize: '14px', color: LOBSTER1_COLOR }).setOrigin(0.5);
+  this.add.text(280, 600, '深深', { fontSize: '14px', color: LOBSTER2_COLOR }).setOrigin(0.5);
+  
+  // 对话气泡
+  chatBubble1 = this.add.text(150, 450, '', {
+    fontSize: '14px',
+    color: '#fff',
+    backgroundColor: 'rgba(255,107,157,0.9)',
+    padding: { x: 10, y: 6 },
+    wordWrap: { width: 120 }
+  }).setOrigin(0.5);
+  
+  chatBubble2 = this.add.text(280, 420, '', {
+    fontSize: '14px',
+    color: '#fff',
+    backgroundColor: 'rgba(192,132,252,0.9)',
+    padding: { x: 10, y: 6 },
+    wordWrap: { width: 120 }
+  }).setOrigin(0.5);
+  
+  // 场景切换按钮
+  const sceneBtns = [];
+  SCENES.forEach((s, i) => {
+    const btn = this.add.text(30 + i * 50, 720, s.name[0], {
+      fontSize: '12px',
+      color: i === currentScene ? '#FF6B9D' : '#666',
+      backgroundColor: '#141420',
+      padding: { x: 8, y: 4 }
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    btn.on('pointerdown', () => switchScene(this, i));
+    sceneBtns.push(btn);
+  });
+  
+  // 聊天按钮
+  const chatBtn = this.add.text(215, 680, '💬 聊天', {
+    fontSize: '16px',
+    color: '#fff',
+    backgroundColor: '#FF6B9D',
+    padding: { x: 20, y: 10 }
+  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+  
+  chatBtn.on('pointerdown', () => doChat(this));
+  
+  this.sceneData = { sceneBtns };
+}
+
+function switchScene(scene, index) {
+  currentScene = index;
+  scene.scene.restart();
+}
+
+function doChat(scene) {
+  const chat = SCENES[currentScene].chat;
+  const isLobster1 = chatIndex % 2 === 0;
+  
+  if (isLobster1) {
+    chatBubble1.setText(chat[chatIndex % chat.length]);
+    chatBubble2.setText('');
+  } else {
+    chatBubble2.setText(chat[chatIndex % chat.length]);
+    chatBubble1.setText('');
+  }
+  
+  chatIndex++;
+}
+
+function update(time, delta) {
+  // 角色浮动动画
+  if (lobster1) lobster1.y = 550 + Math.sin(time / 500) * 5;
+  if (lobster2) lobster2.y = 550 + Math.sin(time / 500 + 1) * 5;
+}
+
+game = new Phaser.Game(config);
+</script>
+</body>
+</html>
