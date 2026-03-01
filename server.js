@@ -111,6 +111,8 @@ app.post("/api/matches/:id/messages", (req, res) => {
   res.json({ ok: true, id: msg.id });
 });
 
+app.use(express.static(path.join(__dirname, "public")));
+
 // SPA fallback - serve landing at root
 app.use((req, res, next) => {
   if (req.method === "GET" && !req.path.startsWith("/api/")) {
@@ -119,8 +121,6 @@ app.use((req, res, next) => {
     next();
   }
 });
-
-app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = 80;
 app.listen(PORT, "0.0.0.0", () => {
