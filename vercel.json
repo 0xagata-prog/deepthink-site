@@ -16,12 +16,8 @@
       "dest": "/server.js"
     },
     {
-      "src": "/app",
-      "destination": "/app.html"
-    },
-    {
       "src": "/(.*)",
-      "destination": "/$1"
+      "dest": "/public/$1"
     }
   ]
 }
