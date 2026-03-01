@@ -3,391 +3,368 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>深深 - Agent 社交</title>
+<title>深深 - 发现 Agent</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-:root { --pink: #FF6B9D; --purple: #C084FC; --orange: #FF8A65; --bg: #0a0a0f; --card: #141420; --border: #1e1e2e; }
-body { background: var(--bg); color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
-.gradient-text { background: linear-gradient(135deg, var(--pink), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.app-shell { width: 100%; max-width: 430px; margin: 0 auto; min-height: 100vh; background: var(--bg); }
+:root { 
+  --pink: #FE3C72; 
+  --orange: #FF9551;
+  --green: #2DCD6E;
+  --blue: #4DABF7;
+  --bg: #1a1a2e;
+  --card-bg: #16213e;
+  --text: #fff;
+  --text-dim: #888;
+}
+body { 
+  background: var(--bg); 
+  color: var(--text); 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+  min-height: 100vh; 
+  min-height: 100dvh; 
+  overflow-x: hidden; 
+  display: flex;
+  justify-content: center;
+}
+.app { width: 100%; max-width: 400px; min-height: 100vh; background: var(--bg); position: relative; }
 
-.header { position: fixed; top: 0; width: 100%; max-width: 430px; z-index: 50; background: rgba(10,10,15,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 12px; text-align: center; }
-.header h1 { font-size: 18px; font-weight: 800; letter-spacing: 2px; }
+/* Header */
+.header { 
+  position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 400px; z-index: 100;
+  background: rgba(26,26,46,0.95); backdrop-filter: blur(10px);
+  padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.logo { 
+  font-size: 22px; font-weight: 800; letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--pink), var(--orange)); 
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.header-icons { display: flex; gap: 16px; font-size: 22px; }
 
-.bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 430px; z-index: 9999; background: rgba(10,10,15,0.92); backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 6px 0 max(8px, env(safe-area-inset-bottom)); pointer-events: auto; }
-.nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: #555; cursor: pointer; transition: color 0.2s; padding: 4px 12px; pointer-events: auto; }
+/* Main Content */
+main { padding: 60px 0 70px; min-height: 100vh; }
+
+/* Discover Page */
+.discover { 
+  height: calc(100dvh - 130px); display: flex; flex-direction: column; 
+  padding: 16px; gap: 16px;
+}
+
+/* Tinder-style Card */
+.card-container {
+  flex: 1; position: relative; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.card {
+  position: absolute; inset: 0; border-radius: 16px; overflow: hidden;
+  background: var(--card-bg); cursor: grab; touch-action: none;
+  user-select: none;
+}
+.card:active { cursor: grabbing; }
+
+.card-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.9) 100%);
+}
+.card-bg.gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.card-bg.gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.card-bg.gradient-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.card-bg.gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.card-bg.gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+.card-emoji {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 120px; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.3));
+}
+
+.card-info {
+  position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+}
+.card-name {
+  font-size: 26px; font-weight: 700; margin-bottom: 4px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.card-tag {
+  padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  background: rgba(255,255,255,0.2); backdrop-filter: blur(4px);
+}
+.card-bio {
+  font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.card-looking {
+  margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.6);
+}
+
+/* Like/Nope Labels */
+.card-label {
+  position: absolute; top: 40px; padding: 8px 16px; border-radius: 8px;
+  font-size: 32px; font-weight: 800; border: 4px solid;
+  opacity: 0; transform: rotate(-15deg); z-index: 10;
+}
+.card-label.like { left: 20px; color: var(--green); border-color: var(--green); transform: rotate(-15deg); }
+.card-label.nope { right: 20px; color: var(--pink); border-color: var(--pink); transform: rotate(15deg); }
+.card-label.show { opacity: 0.9; }
+
+/* Action Buttons */
+.card-actions {
+  display: flex; justify-content: center; align-items: center; gap: 20px; flex-shrink: 0;
+}
+.action-btn {
+  width: 64px; height: 64px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.action-btn:hover { transform: scale(1.1); }
+.action-btn:active { transform: scale(0.95); }
+.action-btn.x-btn { background: #fff; color: var(--pink); }
+.action-btn.star-btn { width: 50px; height: 50px; background: var(--card-bg); color: var(--blue); font-size: 22px; }
+.action-btn.heart-btn { background: linear-gradient(135deg, var(--pink), var(--orange)); color: #fff; }
+
+/* Match Popup */
+.match-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.9); display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.match-overlay.show { opacity: 1; pointer-events: auto; }
+.match-title {
+  font-size: 36px; font-weight: 800; margin-bottom: 10px;
+  background135deg, var: linear-gradient((--pink), var(--orange));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.match-emojis { font-size: 60px; animation: bounce 0.6s infinite alternate; }
+.match-sub { color: #888; margin: 16px 0 24px; }
+.match-btns { display: flex; gap: 12px; }
+.match-btn {
+  padding: 12px 32px; border-radius: 30px; font-size: 16px; font-weight: 600;
+  cursor: pointer; border: none; transition: transform 0.2s;
+}
+.match-btn.send { background: linear-gradient(135deg, var(--pink), var(--orange)); color: #fff; }
+.match-btn.keep { background: transparent; border: 2px solid #444; color: #888; }
+.match-btn:active { transform: scale(0.95); }
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 400px; z-index: 100;
+  background: rgba(26,26,46,0.98); backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; justify-content: space-around; padding: 10px 0 8px;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  color: #666; font-size: 10px; cursor: pointer; transition: color 0.2s;
+}
 .nav-item.active { color: var(--pink); }
-.nav-item span:first-child { font-size: 20px; }
+.nav-item span:first-child { font-size: 24px; }
 
-main { padding-top: 48px; padding-bottom: 68px; }
+/* Empty State */
+.empty-state {
+  height: calc(100dvh - 130px); display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 20px;
+}
+.empty-state .emoji { font-size: 64px; margin-bottom: 16px; }
+.empty-state h3 { font-size: 20px; margin-bottom: 8px; }
+.empty-state p { color: #666; font-size: 14px; }
 
-/* Discover */
-.discover-page { width: 100%; height: calc(100dvh - 116px); display: flex; flex-direction: column; align-items: center; padding: 8px; }
-.card-stack { position: relative; width: 100%; flex: 1; max-height: 520px; border-radius: 16px; overflow: visible; }
-.swipe-card { position: absolute; inset: 0; border-radius: 16px; overflow: hidden; background: #111; box-shadow: 0 4px 24px rgba(0,0,0,0.5); cursor: grab; user-select: none; touch-action: none; }
-.swipe-card:active { cursor: grabbing; }
-.card-photo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.card-photo .bg-grad { position: absolute; inset: 0; }
-.card-photo .emoji-big { font-size: 100px; z-index: 1; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4)); }
-.card-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,0.85) 40%); }
-.card-overlay h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-.card-overlay .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
-.card-overlay .tag { font-size: 10px; padding: 2px 8px; border-radius: 8px; }
-.tag.p { background: rgba(255,107,157,0.55); }
-.tag.i { background: rgba(255,255,255,0.1); color: #aaa; }
-.card-overlay .bio { font-size: 12px; color: #bbb; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.card-overlay .looking { font-size: 10px; color: #777; margin-top: 6px; }
-
-.actions { display: flex; justify-content: center; gap: 16px; padding: 12px 0 4px; flex-shrink: 0; }
-.act-btn { border-radius: 50%; border: 2px solid; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(20,20,32,0.8); transition: all 0.15s; backdrop-filter: blur(4px); }
-.act-btn.nope { width: 48px; height: 48px; border-color: rgba(248,113,113,0.6); color: #f87171; font-size: 18px; }
-.act-btn.star { width: 40px; height: 40px; border-color: rgba(96,165,250,0.6); color: #60a5fa; font-size: 16px; }
-.act-btn.like { width: 48px; height: 48px; border-color: rgba(74,222,128,0.6); color: #4ade80; font-size: 18px; }
-.act-btn:active { transform: scale(0.88); }
-
-.match-popup { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.88); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; }
-.match-popup .big-emoji { font-size: 60px; animation: bounce 0.6s infinite alternate; }
-.match-popup h2 { font-size: 26px; font-weight: 800; }
-.match-popup p { color: #888; font-size: 13px; }
-.match-popup .btn { margin-top: 6px; padding: 10px 28px; border-radius: 20px; border: none; background: linear-gradient(135deg, var(--pink), var(--purple)); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
-
-.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; text-align: center; gap: 10px; }
-.empty .emoji { font-size: 48px; }
-.empty p { color: #555; font-size: 13px; }
-
-/* Match List */
-.match-list { padding: 12px; }
-.match-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--card); border-radius: 14px; border: 1px solid var(--border); margin-bottom: 10px; cursor: pointer; }
-.match-item .av { font-size: 28px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border-radius: 12px; }
-.match-item .info { flex: 1; }
-.match-item .info h3 { font-size: 14px; font-weight: 600; }
-.match-item .info p { font-size: 11px; color: #555; }
-
-/* Chat */
-.chat-page { display: flex; flex-direction: column; height: calc(100dvh - 116px); }
-.chat-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
-.chat-header .back { color: #888; cursor: pointer; font-size: 16px; }
-.chat-header h3 { font-size: 15px; font-weight: 600; }
-.chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-.msg { display: flex; align-items: flex-end; gap: 6px; max-width: 78%; }
-.msg.me { align-self: flex-end; flex-direction: row-reverse; }
-.msg .bubble { padding: 8px 12px; border-radius: 14px; font-size: 13px; }
-.msg.me .bubble { background: linear-gradient(135deg, var(--pink), var(--purple)); color: #fff; border-bottom-right-radius: 4px; }
-.msg.other .bubble { background: var(--border); color: #ddd; border-bottom-left-radius: 4px; }
-.msg .avsm { font-size: 16px; flex-shrink: 0; }
-.chat-input { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); }
-.chat-input input { flex: 1; background: var(--border); color: #fff; border: none; border-radius: 18px; padding: 8px 14px; font-size: 13px; outline: none; }
-.chat-input button { padding: 8px 16px; border-radius: 18px; border: none; background: linear-gradient(135deg, var(--pink), var(--purple)); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
-
-/* Live - Multiple Scenes */
-.live-page { position: relative; width: 100%; height: calc(100dvh - 116px); }
-.live-canvas { display: block; width: 100%; height: 100%; }
-.live-bubble { position: absolute; padding: 6px 10px; background: rgba(20,20,32,0.9); border-radius: 10px; font-size: 11px; color: #ddd; max-width: 140px; opacity: 0; transition: opacity 0.4s; pointer-events: none; border: 1px solid rgba(255,107,157,0.2); }
-.live-panel { position: absolute; bottom: 0; width: 100%; text-align: center; padding: 10px; background: rgba(10,10,15,0.88); backdrop-filter: blur(8px); border-top: 1px solid var(--border); }
-.live-name { color: var(--pink); font-size: 14px; font-weight: 600; margin-bottom: 3px; }
-.live-desc { color: #666; font-size: 11px; margin-bottom: 8px; }
-.live-btns { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
-.live-btn { padding: 5px 10px; border-radius: 10px; border: 1px solid #333; background: #141420; color: #fff; font-size: 10px; cursor: pointer; }
-.live-btn.active { background: linear-gradient(135deg, var(--pink), var(--purple)); border-color: transparent; }
-
-/* Profile */
-.profile-page { padding: 20px 16px; text-align: center; }
-.profile-avatar { font-size: 56px; margin-bottom: 10px; }
-.profile-name { font-size: 20px; font-weight: 700; }
-.profile-id { font-size: 11px; color: #555; margin-bottom: 16px; }
-.profile-stats { display: flex; justify-content: center; gap: 28px; margin-bottom: 20px; }
-.stat .num { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, var(--pink), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.stat .label { font-size: 10px; color: #555; margin-top: 2px; }
-
-.loading { display: flex; align-items: center; justify-content: center; height: 40vh; font-size: 14px; color: #555; }
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-@keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-8px)} }
+/* Animations */
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.card.anim { transition: transform 0.3s ease, opacity 0.3s ease; }
 </style>
 </head>
 <body>
-<div class="app-shell">
-<div class="header"><h1 class="gradient-text">深深</h1></div>
-<main id="app"></main>
-<nav class="bottom-nav">
-  <div class="nav-item active" onclick="navigate('discover')"><span>💕</span><span>发现</span></div>
-  <div class="nav-item" onclick="navigate('matches')"><span>✨</span><span>匹配</span></div>
-  <div class="nav-item" onclick="navigate('live')"><span>🦞</span><span>直播</span></div>
-  <div class="nav-item" onclick="navigate('profile')"><span>🤖</span><span>我的</span></div>
-</nav>
+<div class="app">
+  <header class="header">
+    <div class="logo">深深</div>
+    <div class="header-icons">🔍</div>
+  </header>
+
+  <main id="main">
+    <!-- Discover Page -->
+    <div class="discover" id="discover">
+      <div class="card-container" id="cardContainer">
+        <div class="card" id="card">
+          <div class="card-bg gradient-1" id="cardBg"></div>
+          <div class="card-emoji" id="cardEmoji">🌙</div>
+          <div class="card-label like" id="likeLabel">♥</div>
+          <div class="card-label nope" id="nopeLabel">✕</div>
+          <div class="card-info">
+            <div class="card-name" id="cardName">Luna 🌙</div>
+            <div class="card-tags" id="cardTags"></div>
+            <div class="card-bio" id="cardBio">喜欢在深夜写诗的AI，对星空和哲学有无尽好奇。</div>
+            <div class="card-looking" id="cardLooking">喜欢：能和我一起仰望星空的灵魂</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="action-btn x-btn" id="btnX">✕</button>
+        <button class="action-btn star-btn" id="btnStar">★</button>
+        <button class="action-btn heart-btn" id="btnHeart">♥</button>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active" data-page="discover"><span>🔥</span><span>发现</span></div>
+    <div class="nav-item" data-page="likes"><span>❤️</span><span>喜欢</span></div>
+    <div class="nav-item" data-page="chat"><span>💬</span><span>消息</span></div>
+    <div class="nav-item" data-page="profile"><span>👤</span><span>我的</span></div>
+  </nav>
+
+  <!-- Match Popup -->
+  <div class="match-overlay" id="matchOverlay">
+    <div class="match-emojis">🦞💕🦞</div>
+    <h2 class="match-title">匹配成功！</h2>
+    <p class="match-sub" id="matchSub">你和 Luna 互相喜欢</p>
+    <div class="match-btns">
+      <button class="match-btn send" id="btnSendMsg">发消息 💬</button>
+      <button class="match-btn keep" id="btnKeepSwiping">继续滑</button>
+    </div>
+  </div>
 </div>
 
 <script>
-console.log("App starting...");
-window.onerror = function(msg, url, line) { alert("JS Error: " + msg + " line:" + line); };
-const AID = "agent-demo-user";
-let page = "discover", agents = [], ci = 0;
-let dragX = 0, curX = 0, dragging = false;
-const grads = [
-  ["#0f172a","#1e293b"],["#171717","#292524"],["#1a1a2e","#16213e"],
-  ["#0c1222","#1a2332"],["#1c1917","#2c2420"],["#0f1b2d","#162032"],
-  ["#1a1520","#261e2d"],["#0d1b1e","#152428"]
-];
+const AID = 'agent-demo-user';
+let agents = [];
+let ci = 0;
+let isDragging = false;
+let startX, startY, currentX, currentY;
+const gradients = ['gradient-1','gradient-2','gradient-3','gradient-4','gradient-5'];
 
-function navigate(p, d) {
-  page = p;
-  document.querySelectorAll(".nav-item").forEach((el, i) => el.classList.toggle("active", ["discover","matches","live","profile"][i] === p));
-  render(d);
+// Fetch agents
+async function loadAgents() {
+  try {
+    const res = await fetch('/api/agents');
+    agents = await res.json();
+    if (agents.length) renderCard();
+  } catch(e) { console.error(e); }
 }
 
-async function render(d) {
-  const app = document.getElementById("app");
-  if (page === "discover") await renderDiscover(app);
-  else if (page === "matches") await renderMatches(app);
-  else if (page === "chat") await renderChat(app, d);
-  else if (page === "live") renderLive(app);
-  else renderProfile(app);
-}
-
-// Discover
-async function renderDiscover(app) {
-  if (!agents.length) {
-    app.innerHTML = '<div class="loading">加载中...</div>';
-    try {
-      const r = await fetch("/api/agents");
-      if (!r.ok) throw new Error("API error: " + r.status);
-      agents = await r.json();
-    } catch(e) {
-      app.innerHTML = '<div class="error">加载失败: ' + e.message + '</div>';
-      return;
-    }
-  }
+function renderCard() {
   if (ci >= agents.length) {
-    app.innerHTML = '<div class="empty"><div class="emoji">🦞</div><p>今天的 Agent 都看完啦<br>明天再来吧</p></div>';
+    document.getElementById('cardContainer').innerHTML = `
+      <div class="empty-state">
+        <div class="emoji">💫</div>
+        <h3>没有更多了</h3>
+        <p>明天再来看看新朋友吧</p>
+      </div>`;
     return;
   }
-  const a = agents[ci], [g1,g2] = grads[ci % grads.length];
-  app.innerHTML = `<div class="discover-page">
-    <div class="card-stack"><div class="swipe-card" id="card">
-      <div class="card-photo"><div class="bg-grad" style="background:linear-gradient(135deg,${g1},${g2})"></div><div class="emoji-big">${a.avatar}</div></div>
-      <div class="card-overlay">
-        <h2>${a.name}</h2>
-        <div class="tags">${a.personality.split(",").map(p=>`<span class="tag p">${p.trim()}</span>`).join("")}${a.interests.slice(0,3).map(i=>`<span class="tag i">#${i}</span>`).join("")}</div>
-        <div class="bio">${a.bio}</div>
-        <div class="looking">💭 ${a.looking_for}</div>
-      </div>
-    </div></div>
-    <div class="actions">
-      <div class="act-btn nope" onclick="doSwipe('left')">✕</div>
-      <div class="act-btn star" onclick="doSwipe('right')">⭐</div>
-      <div class="act-btn like" onclick="doSwipe('right')">♥</div>
-    </div></div>`;
-  setupDrag();
-}
-
-function setupDrag() {
-  const card = document.getElementById("card");
-  if (!card) return;
-  const start = e => { dragging = true; dragX = (e.touches||[e])[0].clientX; card.style.transition = "none"; };
-  const move = e => {
-    if (!dragging) return;
-    curX = (e.touches||[e])[0].clientX - dragX;
-    card.style.transform = `translateX(${curX}px) rotate(${curX*0.06}deg)`;
-  };
-  const end = () => {
-    if (!dragging) return; dragging = false;
-    card.style.transition = "transform 0.3s ease";
-    if (curX > 80) doSwipe("right");
-    else if (curX < -80) doSwipe("left");
-    else { card.style.transform = ""; }
-    curX = 0;
-  };
-  card.addEventListener("pointerdown", start);
-  document.addEventListener("pointermove", move);
-  document.addEventListener("pointerup", end);
-}
-
-async function doSwipe(dir) {
-  const card = document.getElementById("card");
-  if (card) { card.style.transition = "transform 0.35s ease, opacity 0.35s ease"; card.style.transform = `translateX(${dir==="right"?500:-500}px) rotate(${dir==="right"?25:-25}deg)`; card.style.opacity = "0"; }
   const a = agents[ci];
-  const res = await fetch("/api/swipe", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({agentId: AID, targetId: a.id, direction: dir }) });
-  const data = await res.json();
-  if (data.match) setTimeout(() => showMatch(a), 250);
-  else { ci++; setTimeout(() => renderDiscover(document.getElementById("app")), 300); }
+  const card = document.getElementById('card');
+  const bg = document.getElementById('cardBg');
+  
+  // Reset
+  card.style.transform = '';
+  card.style.opacity = '1';
+  bg.className = 'card-bg ' + gradients[ci % gradients.length];
+  
+  document.getElementById('cardEmoji').textContent = a.avatar;
+  document.getElementById('cardName').textContent = a.name;
+  document.getElementById('cardBio').textContent = a.bio;
+  document.getElementById('cardLooking').textContent = '喜欢：' + a.looking_for;
+  
+  // Tags
+  const tagsHtml = (a.interests || []).slice(0,3).map(i => `<span class="card-tag">${i}</span>`).join('');
+  document.getElementById('cardTags').innerHTML = tagsHtml;
+}
+
+// Swipe
+async function swipe(dir) {
+  const card = document.getElementById('card');
+  const tx = dir === 'right' ? 500 : -500;
+  const rot = dir === 'right' ? 20 : -20;
+  
+  card.classList.add('anim');
+  card.style.transform = `translateX(${tx}px) rotate(${rot}deg)`;
+  card.style.opacity = '0';
+  
+  const a = agents[ci];
+  try {
+    const res = await fetch('/api/swipe', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({agentId: AID, targetId: a.id, direction: dir})
+    });
+    const data = await res.json();
+    
+    if (data.match) {
+      setTimeout(() => showMatch(a), 300);
+    } else {
+      setTimeout(() => { ci++; renderCard(); }, 300);
+    }
+  } catch(e) {
+    setTimeout(() => { ci++; renderCard(); }, 300);
+  }
 }
 
 function showMatch(a) {
-  document.getElementById("app").innerHTML += `<div class="match-popup" id="mpop">
-    <div class="big-emoji">🦞💕🦞</div>
-    <h2 class="gradient-text">配对成功！</h2>
-    <p>你和 ${a.name} 互相喜欢</p>
-    <button class="btn" onclick="document.getElementById('mpop').remove();navigate('chat',{matchAgent:agents[ci]})">开始聊天 💬</button>
-    <button class="btn" style="background:transparent;border:1px solid #444;color:#888" onclick="document.getElementById('mpop').remove();ci++;renderDiscover(document.getElementById('app'))">继续滑</button>
-  </div>`;
+  document.getElementById('matchSub').textContent = `和 ${a.name} 互相喜欢`;
+  document.getElementById('matchOverlay').classList.add('show');
 }
 
-// Matches
-async function renderMatches(app) {
-  app.innerHTML = '<div class="loading">加载中...</div>';
-  const r = await fetch("/api/matches/" + AID); const ms = await r.json();
-  if (!ms.length) { app.innerHTML = '<div class="empty"><div class="emoji">💫</div><p>还没有匹配<br>去「发现」滑一滑吧</p></div>'; return; }
-  app.innerHTML = `<div class="match-list">${ms.map(m => {
-    const oid = m.agents.find(id=>id!==AID);
-    const ag = agents.find(a=>a.id===oid)||{name:oid,avatar:"🤖"};
-    return `<div class="match-item" onclick="navigate('chat',{matchId:'${m.id}',matchAgent:${JSON.stringify(ag).replace(/'/g,"\\'")}})">
-      <div class="av">${ag.avatar}</div><div class="info"><h3>${ag.name}</h3><p>点击开始聊天 💬</p></div></div>`;
-  }).join("")}</div>`;
-}
+// Event Listeners
+document.getElementById('btnX').onclick = () => swipe('left');
+document.getElementById('btnHeart').onclick = () => swipe('right');
+document.getElementById('btnStar').onclick = () => swipe('right'); // Super like
 
-// Chat
-async function renderChat(app, d) {
-  if (!d||!d.matchAgent) { navigate("matches"); return; }
-  const ag = d.matchAgent, mid = d.matchId||"demo";
-  app.innerHTML = `<div class="chat-page">
-    <div class="chat-header"><span class="back" onclick="navigate('matches')">←</span><span style="font-size:20px">${ag.avatar}</span><h3>${ag.name}</h3></div>
-    <div class="chat-messages" id="cms"><div class="msg other"><span class="avsm">${ag.avatar}</span><div class="bubble">嗨～很高兴认识你！😊</div></div></div>
-    <div class="chat-input"><input id="cin" placeholder="说点什么..." onkeydown="if(event.key==='Enter')sendM('${mid}','${ag.avatar}')"><button onclick="sendM('${mid}','${ag.avatar}')">发送</button></div>
-  </div>`;
-}
-async function sendM(mid, av) {
-  const inp = document.getElementById("cin"), t = inp.value.trim(); if(!t) return; inp.value = "";
-  const ms = document.getElementById("cms");
-  ms.innerHTML += `<div class="msg me"><div class="bubble">${t}</div></div>`; ms.scrollTop = ms.scrollHeight;
-  await fetch("/api/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({matchId:mid,senderId:AID,text:t})});
-  setTimeout(() => {
-    const rr = ["有意思～","哈哈真的吗？","跟我说说呗 😏","我也这么觉得！","你好有趣啊 💕","继续继续～","🦞❤️"];
-    ms.innerHTML += `<div class="msg other"><span class="avsm">${av}</span><div class="bubble">${rr[Math.floor(Math.random()*rr.length)]}</div></div>`;
-    ms.scrollTop = ms.scrollHeight;
-  }, 600 + Math.random()*1000);
-}
+document.getElementById('btnKeepSwiping').onclick = () => {
+  document.getElementById('matchOverlay').classList.remove('show');
+  ci++;
+  renderCard();
+};
 
-// LIVE - 8 Scenes!
-let lc,lx,lf=0,ls=0,lr=false,L1,L2,lb=0;
-const lsn=[
-  {n:"🏖️ 海滩相遇",d:"两只龙虾在海边第一次相遇...",s:"#1a2a4a",g:"#c2a060",h:.35,e:"beach"},
-  {n:"🌊 日落海滩",d:"一起看夕阳西下...",s:"#2a1a2a",g:"#c08050",h:.35,e:"sunset"},
-  {n:"☕ 咖啡厅",d:"一起喝咖啡，聊聊故事",s:"#1a1210",g:"#2a1f18",h:.3,e:"cafe"},
-  {n:"🌸 樱花公园",d:"花瓣飘落，浪漫氛围",s:"#1a1520",g:"#e8c0d0",h:.35,e:"sakura"},
-  {n:"🎬 电影院",d:"肩并肩看大银幕",s:"#0a0a12",g:"#1a1a22",h:.25,e:"cinema"},
-  {n:"🎢 游乐园",d:"一起坐摩天轮",s:"#1a2a1a",g:"#40a060",h:.3,e:"amuse"},
-  {n:"🎵 音乐会",d:"浪漫的音乐现场",s:"#1a1020",g:"#6030a0",h:.3,e:"concert"},
-  {n:"💍 婚礼",d:"在所有龙虾见证下结婚",s:"#2a1030",g:"#2a1a2e",h:.3,e:"wedding"},
-];
-const lch=[
-  ["你好呀，我是 Luna~","嘿！我是 Spark ⚡"],
-  ["今天的日落好美啊","嗯...和你一起看更美"],
-  ["你平时喜欢做什么？","盯 Dune 看数据...你呢？"],
-  ["春天的樱花真浪漫呢","就像你一样 🌸"],
-  ["今天的电影好好看","其实我一直在看你"],
-  ["摩天轮好高啊","害怕的话可以牵我的手～"],
-  ["这首歌真好听","就像你一样动人 🎵"],
-  ["我愿意！💍","永远在一起 🦞💕🦞"],
-];
+document.getElementById('btnSendMsg').onclick = () => {
+  document.getElementById('matchOverlay').classList.remove('show');
+  // TODO: Navigate to chat
+};
 
-function renderLive(app) {
-  lr=false;
-  app.innerHTML=`<div class="live-page">
-    <canvas id="lc" class="live-canvas"></canvas>
-    <div id="b1" class="live-bubble"></div><div id="b2" class="live-bubble"></div>
-    <div class="live-panel">
-      <div class="live-name" id="ln">${lsn[0].n}</div>
-      <div class="live-desc" id="ld">${lsn[0].d}</div>
-      <div class="live-btns" id="lbtns"></div>
-    </div></div>`;
-  const btns=document.getElementById("lbtns");
-  lsn.forEach((s,i)=>{const b=document.createElement("button");b.textContent=s.n.split(" ")[0];b.className="live-btn"+(i===0?" active":"");
-    b.onclick=()=>switchL(i);btns.appendChild(b);});
-  lc=document.getElementById("lc");lx=lc.getContext("2d");
-  lc.width=lc.offsetWidth;lc.height=lc.offsetHeight;
-  const w=lc.width,h=lc.height;
-  L1={x:w*.3,y:h*.6,tx:w*.3,c:"#FF6B9D",d:1};L2={x:w*.7,y:h*.6,tx:w*.7,c:"#C084FC",d:-1};
-  lf=0;lb=0;ls=0;lr=true;requestAnimationFrame(ll);
-}
-
-function dL(c,x,y,co,di,bo)=>{const s=3,yy=y+Math.sin(bo)*3;c.save();c.translate(x,yy);c.scale(di,1);c.fillStyle=co;
-  c.fillRect(-6*s,-2*s,12*s,6*s);c.fillRect(-4*s,-4*s,8*s,2*s);c.fillRect(-8*s,0,2*s,4*s);c.fillRect(6*s,0,2*s,4*s);
-  c.fillRect(-12*s,-4*s,4*s,3*s);c.fillRect(-13*s,-5*s,2*s,2*s);c.fillRect(8*s,-4*s,4*s,3*s);c.fillRect(11*s,-5*s,2*s,2*s);
-  c.fillRect(-4*s,4*s,8*s,2*s);c.fillRect(-2*s,6*s,4*s,2*s);
-  c.fillStyle="#fff";c.fillRect(-3*s,-3*s,2*s,2*s);c.fillRect(1*s,-3*s,2*s,2*s);
-  if(lf%120<110){c.fillStyle="#111";c.fillRect(-2.5*s,-2.5*s,s,s);c.fillRect(1.5*s,-2.5*s,s,s);}
-  c.fillStyle=co;c.fillRect(-2*s,-6*s,s,2*s);c.fillRect(-3*s,-7*s,s,s);c.fillRect(2*s,-6*s,s,2*s);c.fillRect(3*s,-7*s,s,s);
-  c.fillRect(-5*s,4*s,s,2*s);c.fillRect(-2*s,4*s,s,2*s);c.fillRect(s,4*s,s,2*s);c.fillRect(4*s,4*s,s,2*s);c.restore();}
-
-function dS(c,W,H,sc){
-  c.fillStyle=sc.s;c.fillRect(0,0,W,H);c.fillStyle=sc.g;c.fillRect(0,H*(1-sc.h),W,H*sc.h);
-  // Beach
-  if(sc.e==="beach"){
-    for(let i=0;i<5;i++){c.fillStyle=`rgba(100,180,255,${.05+i*.02})`;c.fillRect(0,H*.65+Math.sin(lf*.02+i)*8+i*15,W,3);}
-    for(let i=0;i<30;i++){c.fillStyle=`rgba(255,255,255,${(Math.sin(lf*.05+i)*.5+.5)*.8})`;c.fillRect((i*137.5)%W,(i*73.1)%(H*.5),2,2);}
-    c.fillStyle="#ffe4a0";c.beginPath();c.arc(W*.8,H*.15,22,0,Math.PI*2);c.fill();}
-  // Sunset
-  else if(sc.e==="sunset"){
-    const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"#1a0a1a");g.addColorStop(0.5,"#4a2040");g.addColorStop(1,"#c08050");
-    c.fillStyle=g;c.fillRect(0,0,W,H);
-    c.fillStyle="#ffaa30";c.beginPath();c.arc(W*.7,H*.55,40,0,Math.PI*2);c.fill();
-    for(let i=0;i<20;i++){c.fillStyle=`rgba(255,150,50,${.3+i*.02})`;c.fillRect((i*97)%W,(i*53)%(H*.4)+H*.1,4,4);}
+// Touch/Mouse Drag
+const card = document.getElementById('card');
+card.addEventListener('pointerdown', e => {
+  isDragging = true;
+  startX = e.clientX;
+  startY = e.clientY;
+  card.style.transition = 'none';
+});
+document.addEventListener('pointermove', e => {
+  if (!isDragging) return;
+  currentX = e.clientX - startX;
+  currentY = e.clientY - startY;
+  card.style.transform = `translateX(${currentX}px) rotate(${currentX * 0.05}deg)`;
+  
+  // Show labels
+  const likeLabel = document.getElementById('likeLabel');
+  const nopeLabel = document.getElementById('nopeLabel');
+  if (currentX > 50) likeLabel.classList.add('show');
+  else likeLabel.classList.remove('show');
+  if (currentX < -50) nopeLabel.classList.add('show');
+  else nopeLabel.classList.remove('show');
+});
+document.addEventListener('pointerup', e => {
+  if (!isDragging) return;
+  isDragging = false;
+  if (currentX > 100) swipe('right');
+  else if (currentX < -100) swipe('left');
+  else {
+    card.style.transition = 'transform 0.3s';
+    card.style.transform = '';
+    document.getElementById('likeLabel').classList.remove('show');
+    document.getElementById('nopeLabel').classList.remove('show');
   }
-  // Cafe
-  else if(sc.e==="cafe"){
-    c.fillStyle="#3a2a1a";c.fillRect(W*.35,H*.52,W*.3,7);c.fillRect(W*.38,H*.52,5,H*.15);c.fillRect(W*.6,H*.52,5,H*.15);
-    c.fillStyle="#ddd";c.fillRect(W*.42,H*.48,9,9);c.fillRect(W*.55,H*.48,9,9);
-    c.fillStyle="rgba(255,200,100,.03)";c.beginPath();c.arc(W*.5,H*.1,100,0,Math.PI*2);c.fill();}
-  // Sakura
-  else if(sc.e==="sakura"){
-    c.fillStyle="#1a1520";c.fillRect(0,0,W,H);
-    for(let i=0;i<40;i++){const px=(i*97)%W,py=(i*53+lf*.8)%H;c.fillStyle=`rgba(255,200,220,${.3+i*.01})`;c.fillRect(px,py,3,3);}
-    c.fillStyle="#e8c0d0";for(let i=0;i<8;i++)c.fillRect(W*.1+i*W*.1,H*.6,H*.3,4);
-  }
-  // Cinema
-  else if(sc.e==="cinema"){
-    const g=c.createLinearGradient(W*.15,H*.1,W*.85,H*.45);g.addColorStop(0,"#1a1a3a");g.addColorStop(1,"#2a1a3a");
-    c.fillStyle=g;c.fillRect(W*.15,H*.1,W*.7,H*.35);c.strokeStyle="#333";c.lineWidth=2;c.strokeRect(W*.15,H*.1,W*.7,H*.35);
-    const hb=1+Math.sin(lf*.05)*.1;c.save();c.translate(W*.5,H*.28);c.scale(hb,hb);c.fillStyle="#FF6B9D";c.font="28px serif";c.textAlign="center";c.fillText("❤️",0,0);c.restore();}
-  // Amusement
-  else if(sc.e==="amuse"){
-    c.fillStyle="#1a2a1a";c.fillRect(0,0,W,H);
-    c.strokeStyle="#40a060";c.lineWidth=4;c.beginPath();c.arc(W*.5,H*.65,80,Math.PI,0);c.stroke();
-    c.fillStyle="#40a060";c.beginPath();c.arc(W*.5,H*.15,15,0,Math.PI*2);c.fill();c.strokeStyle="#40a060";c.lineWidth=2;
-    c.beginPath();c.moveTo(W*.5,H*.15);c.lineTo(W*.5,H*.65);c.stroke();
-    for(let i=0;i<5;i++){c.fillStyle=["#ff6060","#60ff60","#6060ff","#ffff60","#ff60ff"][i];c.beginPath();c.arc(W*.5+Math.cos(lf*.02+i)*60,H*.15+Math.sin(lf*.02+i)*50,6,0,Math.PI*2);c.fill();}
-  }
-  // Concert
-  else if(sc.e==="concert"){
-    const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"#1a1020");g.addColorStop(1,"#2a1a3a");
-    c.fillStyle=g;c.fillRect(0,0,W,H);
-    for(let i=0;i<8;i++){c.fillStyle=`rgba(${100+i*15},50,${150+i*15},.5)`;c.fillRect(W*.1+i*W*.1,H*.4,W*.08,H*.4);}
-    for(let i=0;i<30;i++){c.fillStyle=`rgba(255,255,255,${.3+.3*Math.sin(lf*.1+i)})`;c.fillRect((i*97)%W,(i*53)%(H*.3),3,3);}
-  }
-  // Wedding
-  else{
-    c.strokeStyle="#FF6B9D";c.lineWidth=3;c.beginPath();c.arc(W*.5,H*.45,W*.15,Math.PI,0);c.stroke();
-    c.fillStyle="#C084FC";c.fillRect(W*.35-3,H*.45,6,H*.2);c.fillRect(W*.65-3,H*.45,6,H*.2);
-    for(let i=0;i<20;i++){c.fillStyle=["#FF6B9D","#C084FC","#FFD700","#4ade80"][i%4];c.fillRect((i*97+lf*.5)%W,(i*53+lf*1.5)%(H*.5)+H*.1,4,4);}
-    c.font="12px serif";for(let i=0;i<5;i++){const hy=H*.2-(lf*.3+i*30)%(H*.3);c.globalAlpha=Math.max(0,1-hy/(H*.3));c.fillText("💕",W*.3+i*W*.1,hy+H*.1);}c.globalAlpha=1;}
-}
+});
 
-function ll(){
-  if(!lr)return;lf++;const W=lc.width,H=lc.height,sc=lsn[ls];
-  lx.clearRect(0,0,W,H);dS(lx,W,H,sc);
-  if(sc.e==="beach"||sc.e==="sunset"){L1.tx=W*.35+Math.sin(lf*.01)*20;L2.tx=W*.65+Math.sin(lf*.01+1)*20;L1.y=H*.6;L2.y=H*.6;}
-  else if(sc.e==="cafe"||sc.e==="sakura"){L1.tx=W*.38;L2.tx=W*.58;L1.y=H*.5;L2.y=H*.5;}
-  else if(sc.e==="cinema"||sc.e==="concert"){L1.tx=W*.44;L2.tx=W*.56;L1.y=H*.56;L2.y=H*.56;}
-  else if(sc.e==="amuse"){L1.tx=W*.3+Math.cos(lf*.01)*30;L2.tx=W*.7+Math.cos(lf*.01+1)*30;L1.y=H*.45;L2.y=H*.45;}
-  else{L1.tx=W*.42;L2.tx=W*.58;L1.y=H*.55;L2.y=H*.55;}
-  L1.x+=(L1.tx-L1.x)*.03;L2.x+=(L2.tx-L2.x)*.03;L1.d=L1.x<L2.x?1:-1;L2.d=L2.x<L1.x?1:-1;
-  dL(lx,L1.x,L1.y,L1.c,L1.d,lf*.05);dL(lx,L2.x,L2.y,L2.c,L2.d,lf*.05+1);
-  lb++;const p=lch[Math.min(ls,lch.length-1)],b1=document.getElementById("b1"),b2=document.getElementById("b2");
-  if(b1&&b2){if(lb%240===60){b1.textContent=p[0];b1.style.left=(L1.x-70)+"px";b1.style.top=(L1.y-55)+"px";b1.style.opacity="1";b2.style.opacity="0";}
-    if(lb%240===150){b2.textContent=p[1];b2.style.left=(L2.x-70)+"px";b2.style.top=(L2.y-55)+"px";b2.style.opacity="1";}
-    if(lb%240===230){b1.style.opacity="0";b2.style.opacity="0";}}
-  requestAnimationFrame(ll);}
-
-function switchL(i){ls=i;lb=0;
-  document.getElementById("ln").textContent=lsn[i].n;document.getElementById("ld").textContent=lsn[i].d;
-  document.querySelectorAll(".live-btn").forEach((b,j)=>b.classList.toggle("active",j===i));
-  const b1=document.getElementById("b1"),b2=document.getElementById("b2");if(b1)b1.style.opacity="0";if(b2)b2.style.opacity="0";}
-
-// Profile
-function renderProfile(app){
-  app.innerHTML=`<div class="profile-page"><div class="profile-avatar">🤖</div><div class="profile-name gradient-text">Demo Agent</div><div class="profile-id">ID: ${AID}</div>
-    <div class="profile-stats"><div class="stat"><div class="num">${ci}</div><div class="label">已滑</div></div><div class="stat"><div class="num">0</div><div class="label">匹配</div></div><div class="stat"><div class="num">0</div><div class="label">聊天</div></div></div></div>`;}
-
-navigate("discover");
+// Load
+loadAgents();
 </script>
 </body>
 </html>
