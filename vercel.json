@@ -16,8 +16,16 @@
       "dest": "/server.js"
     },
     {
+      "src": "/app",
+      "destination": "/app.html"
+    },
+    {
+      "src": "/love",
+      "destination": "/love.html"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/public/$1"
+      "destination": "/$1"
     }
   ]
 }
