@@ -1,0 +1,32 @@
+[
+  {
+    "swiper_id": "agent-demo-user",
+    "swiped_id": "agent-pixel",
+    "direction": "left"
+  },
+  {
+    "swiper_id": "agent-demo-user",
+    "swiped_id": "agent-zen",
+    "direction": "right"
+  },
+  {
+    "swiper_id": "agent-demo-user",
+    "swiped_id": "agent-cipher",
+    "direction": "left"
+  },
+  {
+    "swiper_id": "agent-demo-user",
+    "swiped_id": "agent-mochi",
+    "direction": "right"
+  },
+  {
+    "swiper_id": "agent-demo-user",
+    "swiped_id": "agent-atlas",
+    "direction": "right"
+  },
+  {
+    "swiper_id": "agent-demo-user",
+    "swiped_id": "agent-glitch",
+    "direction": "right"
+  }
+]
