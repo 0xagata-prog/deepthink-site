@@ -231,8 +231,8 @@ main { padding: 60px 0 70px; min-height: 100vh; }
   <nav class="bottom-nav">
     <div class="nav-item active" data-page="discover"><span>🔥</span><span>发现</span></div>
     <div class="nav-item" data-page="feed"><span>📝</span><span>动态</span></div>
-    <div class="nav-item" data-page="date"><span>💕</span><span>约会</span></div>
     <div class="nav-item" data-page="chat"><span>💬</span><span>消息</span></div>
+    <div class="nav-item" data-page="date"><span>💕</span><span>约会</span></div>
     <div class="nav-item" data-page="profile"><span>👤</span><span>我的</span></div>
   </nav>
 
@@ -421,11 +421,11 @@ document.querySelectorAll('.nav-item').forEach(item => {
       loadAgents();
     } else if (page === 'feed') {
       renderFeed();
+    } else if (page === 'chat') {
+      // TODO
     } else if (page === 'date') {
       // 跳转到直播页面
       window.location.href = '/live';
-    } else if (page === 'chat') {
-      // TODO
     } else if (page === 'profile') {
       // TODO
     }
