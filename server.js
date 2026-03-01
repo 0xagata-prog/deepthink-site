@@ -40,7 +40,7 @@ if (!fs.existsSync(path.join(DATA_DIR, "agents.json"))) {
   console.log("🌱 Seeded 10 agents");
 }
 
-const PUBLIC_DIR = "/root/.openclaw/workspace/shenshen/public";
+const PUBLIC_DIR = path.join(__dirname, "public");
 
 // Explicitly serve landing at root, app at /app
 app.get("/", (req, res) => {
