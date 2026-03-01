@@ -4,141 +4,221 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>深深 - 恋爱直播</title>
-<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --pink: #FE3C72; --purple: #C084FC; --orange: #FF9551; }
 body { 
   background: #1a1a2e; 
   display: flex; 
   justify-content: center; 
   min-height: 100vh; 
-  overflow: hidden;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
-#game-container { 
+.app { 
   width: 100%; 
   max-width: 430px; 
   height: 100vh; 
-  max-height: 780px;
-  border-radius: 0;
+  position: relative;
   overflow: hidden;
 }
-#loading {
-  position: fixed; inset: 0;
-  background: #1a1a2e;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  z-index: 1000; transition: opacity 0.5s;
+
+/* 场景层 */
+.scene {
+  position: absolute; inset: 0;
+  transition: opacity 0.5s;
 }
-#loading.hidden { opacity: 0; pointer-events: none; }
-.spinner { width: 50px; height: 50px; border: 4px solid #333; border-top-color: #FE3C72; border-radius: 50%; animation: spin 1s linear infinite; }
+.scene-bg {
+  position: absolute; inset: 0;
+}
+
+/* 场景装饰 */
+.sun {
+  position: absolute; top: 60px; right: 60px;
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  box-shadow: 0 0 40px currentColor;
+}
+.wave {
+  position: absolute; left: 0; right: 0; height: 8px;
+  background: rgba(100, 180, 255, 0.3);
+  animation: wave 2s ease-in-out infinite;
+}
+@keyframes wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.tree { position: absolute; font-size: 80px; }
+.petal {
+  position: absolute; font-size: 16px;
+  animation: fall 4s linear infinite;
+}
+@keyframes fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(700px) rotate(360deg); opacity: 0; }
+}
+.screen {
+  position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+  width: 240px; height: 140px;
+  background: #000; border: 3px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.screen-glow {
+  position: absolute; inset: 8px;
+  background: linear-gradient(135deg, #331a4a, #4a2066);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
+.wheel { position: absolute; top: 80px; right: 40px; font-size: 90px; opacity: 0.6; animation: spin 20s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-#loading p { color: #888; margin-top: 20px; font-size: 16px; }
-.logo { font-size: 32px; margin-bottom: 10px; }
+.stage-light {
+  position: absolute; top: 0; width: 60px; height: 200px;
+  transform-origin: bottom center;
+  opacity: 0.4;
+}
+.arch {
+  position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+  font-size: 60px;
+}
+.carpet {
+  position: absolute; top: 300px; left: 50%; transform: translateX(-50%);
+  width: 100px; height: 350px;
+  background: linear-gradient(180deg, #cc2255, #aa1144);
+  border-radius: 4px;
+}
+.confetti { position: absolute; font-size: 20px; animation: confetti-fall 3s linear infinite; }
+@keyframes confetti-fall {
+  0% { transform: translateY(-20px) rotate(0deg); }
+  100% { transform: translateY(700px) rotate(720deg); }
+}
 
-/* 底部控制栏 */
-#controls {
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 430px;
-  background: rgba(22,33,62,0.95); backdrop-filter: blur(10px);
-  padding: 12px 16px 20px;
+/* 角色 */
+.characters {
+  position: absolute; bottom: 180px; left: 0; right: 0;
+  display: flex; justify-content: center; gap: 60px;
+}
+.char {
+  display: flex; flex-direction: column; align-items: center;
+  animation: float 2s ease-in-out infinite;
+}
+.char-emoji { font-size: 64px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+.char-name {
+  margin-top: 8px; padding: 4px 12px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 12px; font-size: 12px;
+}
+.char1 .char-name { color: var(--pink); }
+.char2 .char-name { color: var(--purple); }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.char2 { animation-delay: 0.5s; }
+
+/* 对话气泡 */
+.chat-area {
+  position: absolute; top: 60px; left: 16px; right: 16px;
   display: flex; flex-direction: column; gap: 10px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  z-index: 100;
-}
-.scenes { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-.scene-btn {
-  flex-shrink: 0; padding: 8px 12px;
-  background: #0d1525; border: 1px solid #333;
-  border-radius: 20px; color: #666; font-size: 12px;
-  cursor: pointer; transition: all 0.2s;
-}
-.scene-btn.active { background: linear-gradient(135deg, #FE3C72, #C084FC); border-color: transparent; color: #fff; }
-.chat-btn {
-  width: 100%; padding: 14px;
-  background: linear-gradient(135deg, #FE3C72, #FF9551);
-  border: none; border-radius: 25px;
-  color: #fff; font-size: 16px; font-weight: 600;
-  cursor: pointer; transition: transform 0.2s;
-}
-.chat-btn:active { transform: scale(0.96); }
-
-/* 对话显示区 */
-#chat-display {
-  position: fixed; top: 50px; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 430px;
-  padding: 10px 16px;
-  display: flex; flex-direction: column; gap: 8px;
-  z-index: 50;
-  pointer-events: none;
+  max-height: 250px; overflow-y: auto;
 }
 .msg {
-  max-width: 80%; padding: 8px 14px;
+  max-width: 80%; padding: 10px 14px;
   border-radius: 16px; font-size: 14px; line-height: 1.4;
-  animation: fadeIn 0.3s ease;
+  animation: slideIn 0.3s ease;
 }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.msg.you { align-self: flex-start; background: rgba(254,60,114,0.9); color: #fff; border-bottom-left-radius: 4px; }
-.msg.love { align-self: flex-end; background: rgba(192,132,252,0.9); color: #fff; border-bottom-right-radius: 4px; }
-.msg .name { font-size: 10px; opacity: 0.8; margin-bottom: 2px; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.msg-you { 
+  align-self: flex-start; 
+  background: linear-gradient(135deg, var(--pink), var(--orange)); 
+  color: #fff; border-bottom-left-radius: 4px; 
+}
+.msg-love { 
+  align-self: flex-end; 
+  background: var(--purple); 
+  color: #fff; border-bottom-right-radius: 4px; 
+}
+.msg .name { font-size: 10px; opacity: 0.8; margin-bottom: 4px; }
+
+/* 底部控制 */
+.controls {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(22,33,62,0.95);
+  backdrop-filter: blur(10px);
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.scenes {
+  display: flex; gap: 8px; overflow-x: auto;
+  margin-bottom: 12px; padding-bottom: 8px;
+}
+.scene-btn {
+  flex-shrink: 0; padding: 8px 14px;
+  background: #0d1525; border: 1px solid #333;
+  border-radius: 20px; color: #666; font-size: 13px;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.scene-btn.active {
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  border-color: transparent; color: #fff;
+}
+.chat-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--pink), var(--orange));
+  border: none; border-radius: 25px;
+  color: #fff; font-size: 16px; font-weight: 600;
+  cursor: pointer;
+}
+.chat-btn:active { transform: scale(0.96); }
 </style>
 </head>
 <body>
-<div id="loading">
-  <div class="logo">🦞💕🦞</div>
-  <div class="spinner"></div>
-  <p>正在加载浪漫场景...</p>
-</div>
-<div id="game-container"></div>
-<div id="chat-display"></div>
-<div id="controls">
-  <div class="scenes" id="scenes"></div>
-  <button class="chat-btn" id="chatBtn">💬 触发对话</button>
+<div class="app" id="app">
+  <!-- 场景层 -->
+  <div class="scene" id="scene"></div>
+  
+  <!-- 对话区 -->
+  <div class="chat-area" id="chatArea"></div>
+  
+  <!-- 角色 -->
+  <div class="characters">
+    <div class="char char1">
+      <div class="char-emoji">🦞</div>
+      <div class="char-name">你</div>
+    </div>
+    <div class="char char2">
+      <div class="char-emoji">🦞</div>
+      <div class="char-name">深深</div>
+    </div>
+  </div>
+  
+  <!-- 控制栏 -->
+  <div class="controls">
+    <div class="scenes" id="scenes"></div>
+    <button class="chat-btn" id="chatBtn">💬 触发对话</button>
+  </div>
 </div>
 
 <script>
-// 深深恋爱直播 - 完整版
-const config = {
-  type: Phaser.AUTO,
-  width: 430,
-  height: 780,
-  parent: 'game-container',
-  pixelArt: true,
-  backgroundColor: '#1a1a2e',
-  scene: { preload, create, update }
-};
-
-let game;
-let lobster1, lobster2;
-let bgGraphics;
-let currentScene = 0;
-let chatStep = 0;
-let isMoving = false;
-
-// 场景配置 - 每个场景完整的视觉设计
+// 深深恋爱直播 - 纯 CSS 动画版
 const SCENES = [
   {
     name: '海滩',
-    bg: '#1a3a5a',
-    ground: '#c2a060',
-    deco: () => {
-      // 太阳
-      game.add.circle(350, 80, 35, 0xffaa33).setAlpha(0.9);
-      // 海水渐变
-      const sea = game.add.graphics();
-      sea.fillStyle(0x2a5a7a, 0.8);
-      sea.fillRect(0, 400, 430, 280);
-      // 波浪
-      for (let i = 0; i < 6; i++) {
-        const wave = game.add.graphics();
-        wave.lineStyle(2, 0x4a9aba, 0.6);
-        for (let x = 0; x < 430; x += 10) {
-          wave.lineBetween(x, 420 + i * 25 + Math.sin(x / 30) * 5, x + 10, 420 + i * 25 + Math.sin((x + 10) / 30) * 5);
-        }
-      }
-      // 贝壳
-      game.add.text(60 + Math.random() * 40, 720, '🐚', { fontSize: '24px' });
-      game.add.text(320 + Math.random() * 40, 710, '🦀', { fontSize: '20px' });
-    },
+    bg: 'linear-gradient(180deg, #1a3a5a 0%, #c2a060 100%)',
+    elements: `
+      <div class="sun" style="background:#ffaa30;color:#ffaa30"></div>
+      <div class="wave" style="top:350px"></div>
+      <div class="wave" style="top:370px;animation-delay:0.5s"></div>
+      <div class="wave" style="top:390px;animation-delay:1s"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:180px;background:#c2a060"></div>
+      <div style="position:absolute;bottom:40px;left:30px;font-size:24px">🐚</div>
+      <div style="position:absolute;bottom:30px;right:50px;font-size:22px">🦀</div>
+    `,
     chat: [
       ['你好呀～', '嗨！今天天气真好'],
       ['海风好舒服', '就像你在我身边'],
@@ -148,25 +228,12 @@ const SCENES = [
   },
   {
     name: '日落',
-    bg: '#2a1a3a',
-    ground: '#c08050',
-    deco: () => {
-      // 夕阳
-      const sunGrad = game.add.graphics();
-      for (let i = 0; i < 5; i++) {
-        sunGrad.fillStyle(0xff6633, 0.3 - i * 0.05);
-        sunGrad.fillCircle(320, 180, 60 + i * 20);
-      }
-      game.add.circle(320, 180, 40, 0xffaa30);
-      // 天空渐变
-      const sky = game.add.graphics();
-      sky.fillGradientStyle(0x1a0a2a, 0x1a0a2a, 0x4a2040, 0x4a2040, 1);
-      sky.fillRect(0, 0, 430, 400);
-      // 海面反光
-      const sea = game.add.graphics();
-      sea.fillStyle(0xff8040, 0.3);
-      sea.fillRect(0, 350, 430, 100);
-    },
+    bg: 'linear-gradient(180deg, #2a1a3a 0%, #c08050 100%)',
+    elements: `
+      <div class="sun" style="background:#ff6633;color:#ff6633;right:auto;left:50%;transform:translateX(-50%);top:120px"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:200px;background:#c08050"></div>
+      <div style="position:absolute;bottom:100px;left:0;right:0;height:60px;background:linear-gradient(transparent,rgba(255,150,80,0.3))"></div>
+    `,
     chat: [
       ['看，夕阳好美', '嗯...好浪漫'],
       ['和你一起看更美', '嘴甜～'],
@@ -176,23 +243,13 @@ const SCENES = [
   },
   {
     name: '咖啡厅',
-    bg: '#1a1210',
-    ground: '#3a2a1a',
-    deco: () => {
-      // 桌子
-      game.add.rectangle(215, 520, 200, 80, 0x2a1a10).setStrokeStyle(2, 0x4a3020);
-      // 咖啡杯
-      const cup = game.add.text(180, 500, '☕', { fontSize: '32px' });
-      const cup2 = game.add.text(240, 500, '☕', { fontSize: '32px' });
-      // 蒸汽
-      for (let i = 0; i < 3; i++) {
-        const steam = game.add.text(190 + i * 10, 470, '♨️', { fontSize: '14px' }).setAlpha(0.6);
-      }
-      // 灯光
-      const light = game.add.graphics();
-      light.fillStyle(0xffcc66, 0.15);
-      light.fillCircle(215, 300, 150);
-    },
+    bg: 'linear-gradient(180deg, #1a1210 0%, #3a2a1a 100%)',
+    elements: `
+      <div style="position:absolute;top:200px;left:50%;transform:translateX(-50%);width:180px;height:100px;background:#2a1a10;border-radius:8px;border:2px solid #4a3020"></div>
+      <div style="position:absolute;top:180px;left:50%;transform:translateX(-50%);font-size:36px">☕</div>
+      <div style="position:absolute;top:160px;left:50%;transform:translateX(-40%);font-size:14px;opacity:0.6">♨️</div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:200px;background:#3a2a1a"></div>
+    `,
     chat: [
       ['这咖啡真好喝', '嗯！你尝尝'],
       ['你推荐的都好吃', '哈哈那是～'],
@@ -202,25 +259,13 @@ const SCENES = [
   },
   {
     name: '樱花',
-    bg: '#1a1520',
-    ground: '#e8c0d0',
-    deco: () => {
-      // 樱花树
-      game.add.text(80, 150, '🌸', { fontSize: '80px' }).setAlpha(0.9);
-      game.add.text(350, 120, '🌸', { fontSize: '60px' }).setAlpha(0.8);
-      // 飘落的花瓣
-      for (let i = 0; i < 25; i++) {
-        const petal = game.add.text(Math.random() * 430, Math.random() * 500, '🌸', { 
-          fontSize: `${10 + Math.random() * 14}px` 
-        }).setAlpha(0.5 + Math.random() * 0.4);
-        petal.startY = petal.y;
-        petal.speed = 0.3 + Math.random() * 0.5;
-      }
-      // 草地
-      const grass = game.add.graphics();
-      grass.fillStyle(0x2a2030, 1);
-      grass.fillRect(0, 550, 430, 230);
-    },
+    bg: 'linear-gradient(180deg, #1a1520 0%, #e8c0d0 100%)',
+    elements: `
+      <div class="tree" style="top:60px;left:30px">🌸</div>
+      <div class="tree" style="top:40px;right:40px;font-size:60px">🌸</div>
+      ${Array.from({length:20},(_,i)=>`<div class="petal" style="left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;font-size:${12+Math.random()*10}px">🌸</div>`).join('')}
+      <div style="position:absolute;bottom:0;left:0;right:0;height:200px;background:#e8c0d0"></div>
+    `,
     chat: [
       ['樱花好美', '就像你一样'],
       ['花瓣飘下来好浪漫', '想和你一直走'],
@@ -230,19 +275,14 @@ const SCENES = [
   },
   {
     name: '电影院',
-    bg: '#0a0a12',
-    ground: '#1a1a22',
-    deco: () => {
-      // 电影银幕
-      const screen = game.add.rectangle(215, 200, 280, 160, 0x000000);
-      screen.setStrokeStyle(3, 0x333355);
-      // 银幕闪光
-      const glow = game.add.rectangle(215, 200, 260, 140, 0x664488, 0.4);
-      // 座位
-      for (let i = 0; i < 8; i++) {
-        game.add.rectangle(50 + i * 45, 500, 35, 25, 0x222233).setStrokeStyle(1, 0x333344);
-      }
-    },
+    bg: 'linear-gradient(180deg, #0a0a12 0%, #1a1a22 100%)',
+    elements: `
+      <div class="screen"><div class="screen-glow"></div></div>
+      <div style="position:absolute;top:350px;left:0;right:0;display:flex;justify-content:center;gap:10px">
+        ${Array.from({length:6},(_,i)=>`<div style="width:30px;height:20px;background:#222;border-radius:4px"></div>`).join('')}
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:250px;background:#1a1a22"></div>
+    `,
     chat: [
       ['电影好看吗？', '一般般啦'],
       ['其实我一直在看你', '讨厌～'],
@@ -252,21 +292,14 @@ const SCENES = [
   },
   {
     name: '游乐园',
-    bg: '#1a2a1a',
-    ground: '#40a060',
-    deco: () => {
-      // 摩天轮
-      const wheel = game.add.text(320, 200, '🎡', { fontSize: '100px' }).setAlpha(0.7);
-      // 旋转木马
-      game.add.text(80, 400, '🎠', { fontSize: '50px' });
-      // 气球
-      game.add.text(150, 100, '🎈', { fontSize: '30px' });
-      game.add.text(250, 120, '🎈', { fontSize: '24px' });
-      // 草地
-      const grass = game.add.graphics();
-      grass.fillStyle(0x2a4a2a, 1);
-      grass.fillRect(0, 450, 430, 330);
-    },
+    bg: 'linear-gradient(180deg, #1a2a1a 0%, #40a060 100%)',
+    elements: `
+      <div class="wheel">🎡</div>
+      <div style="position:absolute;top:200px;left:40px;font-size:50px">🎠</div>
+      <div style="position:absolute;top:80px;left:100px;font-size:28px">🎈</div>
+      <div style="position:absolute;top:100px;right:120px;font-size:22px">🎈</div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:200px;background:#40a060"></div>
+    `,
     chat: [
       ['摩天轮好高啊', '害怕吗？'],
       ['有你在就不怕', '那我一直陪着你'],
@@ -276,24 +309,15 @@ const SCENES = [
   },
   {
     name: '音乐会',
-    bg: '#1a1020',
-    ground: '#6030a0',
-    deco: () => {
-      // 舞台
-      const stage = game.add.graphics();
-      stage.fillStyle(0x2a1a3a, 1);
-      stage.fillRect(0, 100, 430, 200);
-      // 灯光
-      const colors = [0xff3366, 0x33ff66, 0x3366ff, 0xffff33, 0xff33ff];
-      for (let i = 0; i < 5; i++) {
-        const light = game.add.graphics();
-        light.fillStyle(colors[i], 0.3);
-        light.fillTriangle(215, 120, 80 + i * 70, 100, 120 + i * 70, 200);
-      }
-      // 音箱
-      game.add.text(50, 250, '🔊', { fontSize: '40px' });
-      game.add.text(350, 250, '🔊', { fontSize: '40px' });
-    },
+    bg: 'linear-gradient(180deg, #1a1020 0%, #6030a0 100%)',
+    elements: `
+      <div style="position:absolute;top:0;left:0;right:0;height:200px;background:linear-gradient(180deg,#2a1a3a,#1a1020)"></div>
+      <div class="stage-light" style="left:30px;background:linear-gradient(180deg,rgba(255,51,102,0.5),transparent);transform:rotate(15deg)"></div>
+      <div class="stage-light" style="left:90px;background:linear-gradient(180deg,rgba(51,255,102,0.5),transparent);transform:rotate(10deg)"></div>
+      <div class="stage-light" style="left:150px;background:linear-gradient(180deg,rgba(51,102,255,0.5),transparent);transform:rotate(5deg)"></div>
+      <div class="stage-light" style="left:210px;background:linear-gradient(180deg,rgba(255,255,51,0.5),transparent);transform:rotate(-5deg)"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:200px;background:#6030a0"></div>
+    `,
     chat: [
       ['这首歌真好听', '跟你一样动人'],
       ['我有点想跳舞', '一起吧'],
@@ -303,33 +327,14 @@ const SCENES = [
   },
   {
     name: '婚礼',
-    bg: '#2a1030',
-    ground: '#2a1a2e',
-    deco: () => {
-      // 爱心拱门
-      const arch = game.add.graphics();
-      arch.lineStyle(8, 0xff6699, 1);
-      arch.beginPath();
-      arch.arc(215, 180, 60, Math.PI, 0);
-      arch.strokePath();
-      // 拱门上的花
-      game.add.text(170, 130, '💐', { fontSize: '30px' });
-      game.add.text(255, 130, '💐', { fontSize: '30px' });
-      // 红毯
-      const carpet = game.add.graphics();
-      carpet.fillStyle(0xcc2255, 0.8);
-      carpet.fillRect(150, 250, 130, 400);
-      carpet.fillStyle(0xcc2255, 0.6);
-      carpet.fillRect(155, 250, 5, 400);
-      carpet.fillRect(270, 250, 5, 400);
-      // 彩带
-      for (let i = 0; i < 15; i++) {
-        game.add.text(Math.random() * 430, Math.random() * 300 + 50, ['💕','💗','💖','🎊','🌹'][i % 5], { fontSize: '20px' });
-      }
-      // 宾客
-      game.add.text(80, 600, '👰', { fontSize: '30px' });
-      game.add.text(320, 600, '🤵', { fontSize: '30px' });
-    },
+    bg: 'linear-gradient(180deg, #2a1030 0%, #2a1a2e 100%)',
+    elements: `
+      <div class="arch">💕</div>
+      <div class="carpet"></div>
+      ${Array.from({length:12},(_,i)=>`<div class="confetti" style="left:${Math.random()*100}%;animation-delay:${Math.random()*2}s">${['💕','💗','💖','🎊','🌹'][i%5]}</div>`).join('')}
+      <div style="position:absolute;bottom:50px;left:30px;font-size:28px">👰</div>
+      <div style="position:absolute;bottom:50px;right:30px;font-size:28px">🤵</div>
+    `,
     chat: [
       ['我愿意', '我也愿意'],
       ['永远在一起', '嗯！💍🦞'],
@@ -339,141 +344,68 @@ const SCENES = [
   }
 ];
 
-function preload() {
-  // 加载角色 spritesheet
-  this.load.spritesheet('lobster1', '/live-assets/guestagent1.webp', { frameWidth: 64, frameHeight: 64 });
-  this.load.spritesheet('lobster2', '/live-assets/guestagent2.webp', { frameWidth: 64, frameHeight: 64 });
-  this.load.image('bg', '/live-assets/office_bg_small.webp');
-}
+let currentScene = 0;
+let chatStep = 0;
 
-function create() {
-  // 隐藏 loading
-  setTimeout(() => document.getElementById('loading').classList.add('hidden'), 800);
-  
-  // 背景图（缩放适配）
-  const bg = this.add.image(215, 390, 'bg');
-  bg.setDisplaySize(430, 780);
-  bg.setAlpha(0.4);
-  
-  // 场景图形层
-  bgGraphics = this.add.graphics();
-  
-  // 初始化场景
-  renderScene(this);
-  
-  // 创建角色
-  lobster1 = this.add.sprite(140, 550, 'lobster1', 0);
-  lobster1.setScale(1.3);
-  lobster2 = this.add.sprite(290, 550, 'lobster2', 0);
-  lobster2.setScale(1.3);
-  
-  // 角色动画
-  this.anims.create({
-    key: 'lobster1_idle',
-    frames: this.anims.generateFrameNumbers('lobster1', { start: 0, end: 7 }),
-    frameRate: 8,
-    repeat: -1
-  });
-  this.anims.create({
-    key: 'lobster2_idle',
-    frames: this.anims.generateFrameNumbers('lobster2', { start: 0, end: 7 }),
-    frameRate: 8,
-    repeat: -1
-  });
-  
-  lobster1.anims.play('lobster1_idle', true);
-  lobster2.anims.play('lobster2_idle', true);
-  
-  // 角色名字标签
-  const name1 = this.add.text(140, 610, '你', { 
-    fontSize: '14px', color: '#FE3C72', fontFamily: 'sans-serif', fontStyle: 'bold',
-    backgroundColor: 'rgba(0,0,0,0.5)', padding: { x: 8, y: 4 } 
-  }).setOrigin(0.5);
-  const name2 = this.add.text(290, 610, '深深', { 
-    fontSize: '14px', color: '#C084FC', fontFamily: 'sans-serif', fontStyle: 'bold',
-    backgroundColor: 'rgba(0,0,0,0.5)', padding: { x: 8, y: 4 } 
-  }).setOrigin(0.5);
-  
-  // 底部场景按钮
-  const scenesDiv = document.getElementById('scenes');
-  scenesDiv.innerHTML = SCENES.map((s, i) => 
-    `<button class="scene-btn ${i === currentScene ? 'active' : ''}" data-idx="${i}">${s.name}</button>`
-  ).join('');
-  
-  // 场景按钮点击
-  document.querySelectorAll('.scene-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentScene = parseInt(btn.dataset.idx);
-      chatStep = 0;
-      document.getElementById('chat-display').innerHTML = '';
-      renderScene(this);
-      document.querySelectorAll('.scene-btn').forEach((b, i) => {
-        b.classList.toggle('active', i === currentScene);
-      });
-    });
-  });
-  
-  // 聊天按钮
-  document.getElementById('chatBtn').addEventListener('click', () => doChat(this));
-}
+// 初始化场景按钮
+const scenesDiv = document.getElementById('scenes');
+SCENES.forEach((s, i) => {
+  const btn = document.createElement('button');
+  btn.className = `scene-btn ${i === currentScene ? 'active' : ''}`;
+  btn.textContent = s.name;
+  btn.onclick = () => switchScene(i);
+  scenesDiv.appendChild(btn);
+});
 
-function renderScene(scene) {
-  bgGraphics.clear();
+// 渲染场景
+function renderScene() {
   const s = SCENES[currentScene];
-  
-  // 背景渐变
-  const bg = scene.add.graphics();
-  const topColor = parseInt(s.bg.slice(1), 16);
-  const bottomColor = parseInt(s.ground.slice(1), 16);
-  bg.fillGradientStyle(topColor, topColor, bottomColor, bottomColor, 1);
-  bg.fillRect(0, 0, 430, 780);
-  
-  // 场景装饰
-  s.deco();
+  const scene = document.getElementById('scene');
+  scene.innerHTML = `<div class="scene-bg" style="background:${s.bg}">${s.elements}</div>`;
 }
 
-function doChat(scene) {
+// 切换场景
+function switchScene(idx) {
+  currentScene = idx;
+  chatStep = 0;
+  document.getElementById('chatArea').innerHTML = '';
+  renderScene();
+  document.querySelectorAll('.scene-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === currentScene);
+  });
+}
+
+// 对话
+function doChat() {
   const chat = SCENES[currentScene].chat;
   if (chatStep >= chat.length) {
     chatStep = 0;
-    document.getElementById('chat-display').innerHTML = '';
+    document.getElementById('chatArea').innerHTML = '';
   }
   
   const [text1, text2] = chat[chatStep];
-  const chatDisplay = document.getElementById('chat-display');
+  const chatArea = document.getElementById('chatArea');
   
-  // 显示对话
   const msg1 = document.createElement('div');
-  msg1.className = 'msg you';
+  msg1.className = 'msg msg-you';
   msg1.innerHTML = `<div class="name">你</div>${text1}`;
-  chatDisplay.appendChild(msg1);
+  chatArea.appendChild(msg1);
   
   setTimeout(() => {
     const msg2 = document.createElement('div');
-    msg2.className = 'msg love';
+    msg2.className = 'msg msg-love';
     msg2.innerHTML = `<div class="name">深深</div>${text2}`;
-    chatDisplay.appendChild(msg2);
-    
-    // 自动滚动到底
-    chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    chatArea.appendChild(msg2);
+    chatArea.scrollTop = chatArea.scrollHeight;
   }, 600);
   
   chatStep++;
 }
 
-function update(time, delta) {
-  // 角色浮动呼吸动画
-  if (lobster1) {
-    lobster1.y = 550 + Math.sin(time / 300) * 5;
-    lobster1.x = 140 + Math.sin(time / 500) * 3;
-  }
-  if (lobster2) {
-    lobster2.y = 550 + Math.sin(time / 300 + 1) * 5;
-    lobster2.x = 290 + Math.sin(time / 500 + 1.5) * 3;
-  }
-}
+document.getElementById('chatBtn').onclick = doChat;
 
-game = new Phaser.Game(config);
+// 初始渲染
+renderScene();
 </script>
 </body>
 </html>
