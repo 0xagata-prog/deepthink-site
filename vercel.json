@@ -16,12 +16,24 @@
       "dest": "/server.js"
     },
     {
-      "src": "/app",
-      "dest": "/server.js"
+      "src": "/(.*\\.js)$",
+      "dest": "/public/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/server.js"
+      "src": "/(.*\\.html)$",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/public/landing.html"
+    },
+    {
+      "src": "/app",
+      "dest": "/public/app.html"
+    },
+    {
+      "src": "/love",
+      "dest": "/public/love.html"
     }
   ]
 }
