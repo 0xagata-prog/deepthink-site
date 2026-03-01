@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>深深 - 恋爱直播</title>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+  background: #1a1a2e; 
+  display: flex; 
+  justify-content: center; 
+  min-height: 100vh; 
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+#game-container { 
+  width: 100%; 
+  max-width: 430px; 
+  height: 100vh; 
+  max-height: 800px;
+  border-radius: 0;
+  overflow: hidden;
+}
+/* Loading */
+#loading {
+  position: fixed; inset: 0;
+  background: #1a1a2e;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.5s;
+}
+#loading.hidden { opacity: 0; pointer-events: none; }
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid #333;
+  border-top-color: #FE3C72;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading p { color: #888; margin-top: 16px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="loading">
+  <div class="spinner"></div>
+  <p>正在加载浪漫场景...</p>
+</div>
+<div id="game-container"></div>
+
+<script>
+// 深深恋爱直播 - Phaser 版
+const config = {
+  type: Phaser.AUTO,
+  width: 430,
+  height: 780,
+  parent: 'game-container',
+  pixelArt: true,
+  backgroundColor: '#1a1a2e',
+  scene: { preload, create, update }
+};
+
+let game;
+let lobster1, lobster2;
+let bubble1, bubble2;
+let currentScene = 0;
+let chatStep = 0;
+let lastChat = 0;
+
+// 场景配置 - 浪漫约会场景
+const SCENES = [
+  { 
+    name: '🏖️ 海滩', 
+    bg: '#1a3a5a', 
+    ground: '#c2a060',
+    sun: '#ffaa30',
+    deco: 'beach',
+    chat: [
+      ['你好呀～', '嗨！今天天气真好'],
+      ['海风好舒服', '就像你在我身边'],
+      ['我好喜欢和你一起', '我也是 🦞💕']
+    ]
+  },
+  { 
+    name: '🌅 日落', 
+    bg: '#2a1a3a', 
+    ground: '#c08050',
+    sun: '#ff6633',
+    deco: 'sunset',
+    chat: [
+      ['看，夕阳好美', '嗯...好浪漫'],
+      ['和你一起看更美', '嘴甜～'],
+      ['我有点紧张', '我也是']
+    ]
+  },
+  { 
+    name: '☕ 咖啡厅', 
+    bg: '#1a1210', 
+    ground: '#3a2a1a',
+    sun: null,
+    deco: 'cafe',
+    chat: [
+      ['这咖啡真好喝', '嗯！你尝尝'],
+      ['你推荐的都好吃', '哈哈那是～'],
+      ['想一直和你在这', '我也是']
+    ]
+  },
+  { 
+    name: '🌸 樱花', 
+    bg: '#1a1520', 
+    ground: '#e8c0d0',
+    sun: null,
+    deco: 'sakura',
+    chat: [
+      ['樱花好美', '就像你一样'],
+      ['花瓣飘下来好浪漫', '想和你一直走'],
+      ['我...喜欢你', '我也是 🦞💕']
+    ]
+  },
+  { 
+    name: '🎬 电影院', 
+    bg: '#0a0a12', 
+    ground: '#1a1a22',
+    sun: null,
+    deco: 'cinema',
+    chat: [
+      ['电影好看吗？', '一般般啦'],
+      ['其实我一直在看你', '讨厌～'],
+      ['想牵着你的手', '...嗯']
+    ]
+  },
+  { 
+    name: '🎢 游乐园', 
+    bg: '#1a2a1a', 
+    ground: '#40a060',
+    sun: null,
+    deco: 'amuse',
+    chat: [
+      ['摩天轮好高啊', '害怕吗？'],
+      ['有你在就不怕', '那我一直陪着你'],
+      ['我想永远这样', '嗯']
+    ]
+  },
+  { 
+    name: '🎵 音乐会', 
+    bg: '#1a1020', 
+    ground: '#6030a0',
+    sun: null,
+    deco: 'concert',
+    chat: [
+      ['这首歌真好听', '跟你一样动人'],
+      ['我有点想跳舞', '一起吧'],
+      ['和你在一起好开心', '我也是 💕']
+    ]
+  },
+  { 
+    name: '💍 婚礼', 
+    bg: '#2a1030', 
+    ground: '#2a1a2e',
+    sun: null,
+    deco: 'wedding',
+    chat: [
+      ['我愿意', '我也愿意'],
+      ['永远在一起', '嗯！💍🦞'],
+      ['我爱你', '我也爱你']
+    ]
+  }
+];
+
+function preload() {
+  // 加载 Star-Office-UI 的角色 spritesheet
+  this.load.spritesheet('lobster1', '/live-assets/guestagent1.webp', { frameWidth: 64, frameHeight: 64 });
+  this.load.spritesheet('lobster2', '/live-assets/guestagent2.webp', { frameWidth: 64, frameHeight: 64 });
+  this.load.spritesheet('hearts', '/live-assets/flowers-spritesheet.webp', { frameWidth: 65, frameHeight: 65 });
+}
+
+function create() {
+  // 隐藏 loading
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('hidden');
+  }, 500);
+
+  const scene = SCENES[currentScene];
+  
+  // 背景渐变
+  const bg = this.add.graphics();
+  bg.fillGradientStyle(parseInt(scene.bg.slice(1), 16), parseInt(scene.bg.slice(1), 16), parseInt(scene.bg.slice(1), 16), parseInt(scene.bg.slice(1), 16), 1);
+  bg.fillRect(0, 0, 430, 780);
+  
+  // 太阳/月亮
+  if (scene.sun) {
+    const sun = this.add.circle(350, 100, 40, scene.sun);
+    sun.setAlpha(0.8);
+  }
+  
+  // 地面
+  const ground = this.add.rectangle(215, 680, 430, 200, parseInt(scene.ground.slice(1), 16));
+  
+  // 场景装饰
+  if (scene.deco === 'beach' || scene.deco === 'sunset') {
+    // 波浪
+    for (let i = 0; i < 5; i++) {
+      const wave = this.add.rectangle(215, 580 + i * 20, 430, 3, 0x4a90a0, 0.3 - i * 0.05);
+    }
+    // 贝壳
+    this.add.text(50 + Math.random() * 50, 700, '🐚', { fontSize: '20px' });
+  } else if (scene.deco === 'sakura') {
+    // 樱花花瓣
+    for (let i = 0; i < 20; i++) {
+      const petal = this.add.text(Math.random() * 430, Math.random() * 500, '🌸', { fontSize: `${12 + Math.random() * 12}px` });
+      petal.setAlpha(0.6);
+    }
+  } else if (scene.deco === 'cinema') {
+    // 电影屏幕闪光
+    const screen = this.add.rectangle(215, 200, 300, 180, 0x000000);
+    const screenGlow = this.add.rectangle(215, 200, 280, 160, 0x333366, 0.5);
+  } else if (scene.deco === 'concert') {
+    // 舞台灯光
+    for (let i = 0; i < 5; i++) {
+      const light = this.add.circle(80 + i * 70, 150, 20, [0xff3366, 0x33ff66, 0x3366ff, 0xffff33, 0xff33ff][i], 0.7);
+    }
+  } else if (scene.deco === 'wedding') {
+    // 爱心拱门
+    const arch = this.add.text(215, 150, '💕', { fontSize: '60px' }).setOrigin(0.5);
+    // 彩带
+    for (let i = 0; i < 10; i++) {
+      this.add.text(Math.random() * 430, Math.random() * 400 + 200, '🎊', { fontSize: '24px' });
+    }
+  } else if (scene.deco === 'cafe') {
+    // 咖啡杯
+    const cup = this.add.text(215, 500, '☕', { fontSize: '40px' }).setOrigin(0.5);
+  } else if (scene.deco === 'amuse') {
+    // 摩天轮
+    const wheel = this.add.text(320, 250, '🎡', { fontSize: '80px' }).setOrigin(0.5);
+    wheel.setAlpha(0.6);
+  }
+  
+  // 标题
+  const title = this.add.text(215, 40, scene.name, {
+    fontSize: '18px',
+    color: '#fff',
+    fontFamily: 'sans-serif',
+    fontStyle: 'bold'
+  }).setOrigin(0.5);
+  
+  // 创建角色（使用 guestagent sprites）
+  lobster1 = this.add.sprite(140, 520, 'lobster1', 0);
+  lobster1.setScale(1.2);
+  lobster2 = this.add.sprite(290, 520, 'lobster2', 0);
+  lobster2.setScale(1.2);
+  
+  // 角色动画
+  this.anims.create({
+    key: 'lobster1_idle',
+    frames: this.anims.generateFrameNumbers('lobster1', { start: 0, end: 7 }),
+    frameRate: 6,
+    repeat: -1
+  });
+  this.anims.create({
+    key: 'lobster2_idle',
+    frames: this.anims.generateFrameNumbers('lobster2', { start: 0, end: 7 }),
+    frameRate: 6,
+    repeat: -1
+  });
+  
+  lobster1.anims.play('lobster1_idle', true);
+  lobster2.anims.play('lobster2_idle', true);
+  
+  // 对话气泡
+  bubble1 = this.createBubble(this, 140, 420);
+  bubble2 = this.createBubble(this, 290, 390);
+  
+  // 底部场景按钮
+  const btnsY = 740;
+  const btnW = 48;
+  for (let i = 0; i < SCENES.length; i++) {
+    const btn = this.add.text(30 + i * btnW, btnsY, SCENES[i].name.charAt(0), {
+      fontSize: '16px',
+      backgroundColor: i === currentScene ? '#FE3C72' : '#16213e',
+      padding: { x: 8, y: 6 },
+      color: '#fff'
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    
+    btn.on('pointerdown', () => {
+      currentScene = i;
+      chatStep = 0;
+      this.scene.restart();
+    });
+  }
+  
+  // 聊天按钮
+  const chatBtn = this.add.text(215, 700, '💬 聊天', {
+    fontSize: '16px',
+    fontFamily: 'sans-serif',
+    fontStyle: 'bold',
+    backgroundColor: '#FE3C72',
+    padding: { x: 20, y: 10 },
+    color: '#fff'
+  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+  
+  chatBtn.on('pointerdown', () => this.doChat(this));
+  
+  // 角色名字
+  this.add.text(140, 580, '你', { 
+    fontSize: '14px', color: '#FE3C72', fontFamily: 'sans-serif', fontStyle: 'bold' 
+  }).setOrigin(0.5);
+  this.add.text(290, 580, '深深', { 
+    fontSize: '14px', color: '#C084FC', fontFamily: 'sans-serif', fontStyle: 'bold' 
+  }).setOrigin(0.5);
+}
+
+function createBubble(scene, x, y) {
+  const bubble = scene.add.text(x, y, '', {
+    fontSize: '13px',
+    color: '#fff',
+    backgroundColor: 'rgba(30,30,50,0.95)',
+    padding: { x: 12, y: 8 },
+    wordWrap: { width: 110 },
+    maxLines: 3
+  }).setOrigin(0.5);
+  
+  bubble.setVisible(false);
+  return bubble;
+}
+
+function doChat(scene) {
+  const chat = SCENES[currentScene].chat;
+  if (chatStep >= chat.length) {
+    chatStep = 0;
+  }
+  
+  const [text1, text2] = chat[chatStep];
+  
+  // 显示对话
+  bubble1.setText(text1);
+  bubble1.setVisible(true);
+  
+  setTimeout(() => {
+    bubble2.setText(text2);
+    bubble2.setVisible(true);
+  }, 800);
+  
+  chatStep++;
+}
+
+function update(time, delta) {
+  // 角色浮动动画
+  if (lobster1) lobster1.y = 520 + Math.sin(time / 400) * 4;
+  if (lobster2) lobster2.y = 520 + Math.sin(time / 400 + 1.5) * 4;
+  
+  // 对话气泡淡出
+  if (bubble1.visible && time - lastChat > 5000) {
+    bubble1.setAlpha(bubble1.alpha - 0.01);
+    bubble2.setAlpha(bubble2.alpha - 0.01);
+    if (bubble1.alpha <= 0) {
+      bubble1.setVisible(false);
+      bubble2.setVisible(false);
+      bubble1.setAlpha(1);
+      bubble2.setAlpha(1);
+    }
+  }
+}
+
+game = new Phaser.Game(config);
+</script>
+</body>
+</html>
